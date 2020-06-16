@@ -1,8 +1,12 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const bodyParser = require('body-parser')
+const authRoutes = require('./routes/auth')
 const conversationRoutes = require('./routes/conversation')
 
 const app = express()
+
+app.use(bodyParser.json())
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -12,7 +16,15 @@ app.use((req, res, next) => {
   next()
 })
 
+app.use('/auth', authRoutes)
 app.use('/conversation', conversationRoutes)
+
+app.use((error, req, res, next) => {
+  const status = error.status || 500
+  const message = error.message
+
+  res.status(status).json({ message: message })
+})
 
 mongoose
   .connect('mongodb+srv://henrique:mongohenriquen@cluster0-un9ta.mongodb.net/chat-api?retryWrites=true')
