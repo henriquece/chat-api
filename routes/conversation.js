@@ -1,10 +1,11 @@
 const express = require('express')
 const conversationController = require('../controllers/conversation')
+const isAuth = require('../middlewares/isAuth')
 
 const router = express.Router()
 
-router.get('/', conversationController.getConversations)
+router.get('/', isAuth, conversationController.getConversations)
 
-router.post('/', conversationController.postConversation)
+router.post('/', isAuth, conversationController.postConversation)
 
 module.exports = router
