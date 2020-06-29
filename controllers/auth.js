@@ -3,11 +3,15 @@ const jwt = require('jsonwebtoken')
 const User = require('../models/user')
 const validate = require('../utils/validation')
 const valueTypes = require('../constants/valueTypes')
+const { getToken } = require('../utils/auth')
 
 const signup = (req, res, next) => {
-  const { email, password } = req.body
+  const { email, name, password } = req.body
 
   validate(email, valueTypes.email)
+    .then(() => {
+      return validate(name, valueTypes.name)
+    })
     .then(() => {
       return User.findOne({ email: email })
     })
@@ -24,13 +28,22 @@ const signup = (req, res, next) => {
     .then(hashedPassword => {
       const user = new User({
         email: email,
+        name: name,
         password: hashedPassword
       })
 
       return user.save()
     })
     .then(user => {
-      res.status(201).json({ message: 'User created', email: user.email })
+      const { _id, email } = user
+
+      const token = getToken(_id, email)
+
+      res.status(201).json({
+        userId: _id.toString(),
+        message: 'User created',
+        token: token,
+      })
     })
     .catch(error => {
       next(error)
@@ -57,16 +70,11 @@ const signin = (req, res, next) => {
     })
     .then(isPasswordCorrect => {
       if (isPasswordCorrect) {
-        const token = jwt.sign(
-          {
-            email: requestUser.email,
-            id: requestUser._id.toString()
-          },
-          'chatsecret',
-          { expiresIn: '1h' }
-        )
-          
-        res.status(200).json({ token: token, id: requestUser._id.toString() })
+        const { _id, email } = requestUser
+
+        const token = getToken(_id, email)
+
+        res.status(200).json({ userId: _id.toString(), token: token })
       } else {
         const error = new Error('Wrong password')
         error.status = 401

@@ -11,15 +11,15 @@ const validateType = (value, valueType) => {
     case valueTypes.email:
       return validateEmail(value)
     default:
-      return value.length > 0
+      return value
   }
 }
 
 const validate = (value, valueType) => {
-  const validationValue = validateType(value, valueType)
+  const isValid = validateType(value, valueType)
 
   return new Promise((resolve, reject) => {
-    if (validationValue) {
+    if (isValid) {
       return resolve(true)
     }
     
