@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const authRoutes = require('./routes/auth')
+const userRoutes = require('./routes/user')
 const conversationRoutes = require('./routes/conversation')
 
 const app = express()
@@ -17,6 +18,7 @@ app.use((req, res, next) => {
 })
 
 app.use('/auth', authRoutes)
+app.use('/user', userRoutes)
 app.use('/conversation', conversationRoutes)
 
 app.use((error, req, res, next) => {
