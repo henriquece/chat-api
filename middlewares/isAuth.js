@@ -14,7 +14,7 @@ const isAuth = (req, res, next) => {
   let decodedToken
 
   try {
-    decodedToken = jwt.verify(token, 'chatsecret')
+    decodedToken = jwt.verify(token, 'secret')
   } catch (error) {
     error.status = 401
 

@@ -4,9 +4,9 @@ const getToken = (_id, email) => {
   return jwt.sign(
     {
       email: email,
-      userId: _id.toString()
+      id: _id.toString()
     },
-    'somesupersecretsecret',
+    'secret',
     { expiresIn: '1h' }
   )
 }

@@ -1,5 +1,4 @@
 const bcryptjs = require('bcryptjs')
-const jwt = require('jsonwebtoken')
 const User = require('../models/user')
 const validate = require('../utils/validation')
 const valueTypes = require('../constants/valueTypes')
@@ -83,8 +82,6 @@ const signin = (req, res, next) => {
       }
     })
     .catch(error => {
-      console.log('catch', error)
-
       next(error)
     })
 }
