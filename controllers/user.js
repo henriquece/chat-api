@@ -46,6 +46,36 @@ const createConversation = (req, res) => {
     })
 }
 
+const getConversations = (req, res) => {
+  const { userId } = req
+
+  User
+    .findById(userId)
+    .populate({ path: 'conversations', populate: { path: 'users' } })
+    .exec((error, user) => {
+      if (error) {
+        next(error)
+      }
+
+      const conversationsContacts = user.conversations.map(conversation => {
+        const contact = conversation.users.find(user => user._id.toString() !== userId)
+
+        return {
+          id: contact.id,
+          contactName: contact.name,
+          lastMessage: {
+            content: '',
+            date: '',
+          },
+        }
+      })
+
+      res.status(200).json({
+        conversations: conversationsContacts, 
+      })
+    })
+}
+
 const getUsers = (req, res) => {
   const { email } = req.params
 
@@ -55,7 +85,7 @@ const getUsers = (req, res) => {
       const usersInfo = users.map(user => {
         const { _id, email, name } = user
 
-        return { _id, email, name }
+        return { id: _id, email, name }
       })
 
       res.json({ users: usersInfo })
@@ -65,4 +95,4 @@ const getUsers = (req, res) => {
     })
 }
 
-module.exports = { createConversation, getUsers }
+module.exports = { createConversation, getConversations, getUsers }
