@@ -14,13 +14,17 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-
-  next()
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200)
+  } else {
+    next()
+  }
 })
 
 app.use('/auth', authRoutes)
 app.use('/user', isAuth, userRoutes)
-app.use('/conversation', conversationRoutes)
+app.use('/conversation', isAuth, conversationRoutes)
 
 app.use((error, req, res, next) => {
   const status = error.status || 500
