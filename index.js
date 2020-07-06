@@ -5,6 +5,7 @@ const authRoutes = require('./routes/auth')
 const userRoutes = require('./routes/user')
 const conversationRoutes = require('./routes/conversation')
 const isAuth = require('./middlewares/isAuth')
+const io = require('./utils/socket')
 
 const app = express()
 
@@ -14,7 +15,7 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  
+
   if (req.method === 'OPTIONS') {
     res.sendStatus(200)
   } else {
@@ -36,6 +37,12 @@ app.use((error, req, res, next) => {
 mongoose
   .connect('mongodb+srv://henrique:mongohenriquen@cluster0-un9ta.mongodb.net/chat-api?retryWrites=true')
   .then(() => {
-    app.listen(3000)
+    const server = app.listen(3000)
+
+    const socket = io.init(server)
+
+    socket.on('connection', socket => {
+      console.log('Connection established')
+    })
   })
   .catch(error => console.log(error))

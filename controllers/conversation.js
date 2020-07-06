@@ -1,5 +1,6 @@
 const Conversation = require('../models/conversation')
 const User = require('../models/user')
+const io = require('../utils/socket')
 
 const createConversation = (req, res) => {
   const { userId, body: { contactId } } = req
@@ -84,7 +85,7 @@ const getConversation = (req, res) => {
     .findById(conversationId)
     .then(conversation => {
       res.status(200).json({
-        id: conversation._id,
+        _id: conversation._id,
         messages: conversation.messages,
       })
     })
@@ -107,10 +108,10 @@ const addMessage = (req, res) => {
 
       return conversation.save()
     })
-    .then(() => {
-      res.status(200).json({
-        message: 'Message added',
-      })
+    .then((conversation) => {
+      io.getIO().emit('message', { action: 'create', conversation: conversation })
+
+      res.status(200).json({ message: 'Message added' })
     })
     .catch(error => {
       next(error)
