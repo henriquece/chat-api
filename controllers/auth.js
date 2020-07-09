@@ -34,12 +34,13 @@ const signup = (req, res, next) => {
       return user.save()
     })
     .then(user => {
-      const { _id, email } = user
+      const { _id, email, name } = user
 
       const token = getToken(_id, email)
 
       res.status(201).json({
         userId: _id.toString(),
+        userName: name,
         message: 'User created',
         token: token,
       })
@@ -69,11 +70,11 @@ const signin = (req, res, next) => {
     })
     .then(isPasswordCorrect => {
       if (isPasswordCorrect) {
-        const { _id, email } = requestUser
+        const { _id, email, name } = requestUser
 
         const token = getToken(_id, email)
 
-        res.status(200).json({ userId: _id.toString(), token: token })
+        res.status(200).json({ userId: _id.toString(), userName: name, token: token })
       } else {
         const error = new Error('Wrong password')
         error.status = 401
