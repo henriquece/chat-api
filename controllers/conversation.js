@@ -39,7 +39,10 @@ const createConversation = (req, res) => {
     })
     .then(() => {
       res.status(200).json({
-        message: 'Conversation created',
+        _id: conversationCreated._id,
+        contactId: contactData._id,
+        contactName: contactData.name,
+        messages: []
       })
     })
     .catch(error => {
@@ -58,39 +61,20 @@ const getConversations = (req, res) => {
         next(error)
       }
 
-      const conversationsContacts = user.conversations.map(conversation => {
+      const conversations = user.conversations.map(conversation => {
         const contact = conversation.users.find(user => user._id.toString() !== userId)
 
         return {
-          id: conversation._id,
+          _id: conversation._id,
           contactId: contact._id,
           contactName: contact.name,
-          lastMessage: {
-            content: '',
-            date: 1,
-          },
+          messages: conversation.messages
         }
       })
 
       res.status(200).json({
-        conversations: conversationsContacts,
+        conversations,
       })
-    })
-}
-
-const getConversation = (req, res) => {
-  const { params: { conversationId } } = req
-
-  Conversation
-    .findById(conversationId)
-    .then(conversation => {
-      res.status(200).json({
-        _id: conversation._id,
-        messages: conversation.messages,
-      })
-    })
-    .catch(error => {
-      next(error)
     })
 }
 
@@ -99,17 +83,26 @@ const addMessage = (req, res) => {
 
   const newMessage = { userId, date, content }
 
-  console.log('aqui', conversationId, newMessage);
-
   Conversation
     .findById(conversationId)
-    .then(conversation => {
+    .populate({ path: 'users' })
+    .exec()
+    .then((conversation) => {
       conversation.messages.push(newMessage)
-
+      
       return conversation.save()
     })
     .then((conversation) => {
-      io.getIO().emit('message', { action: 'create', conversation: conversation })
+      const contact = conversation.users.find(user => user._id.toString() !== userId)
+
+      const responseConversation = {
+        _id: conversation._id,
+        contactId: contact._id,
+        contactName: contact.name,
+        messages: conversation.messages
+      }
+
+      io.getIO().emit('message', { action: 'create', conversation: responseConversation })
 
       res.status(200).json({ message: 'Message added' })
     })
@@ -118,4 +111,4 @@ const addMessage = (req, res) => {
     })
 }
 
-module.exports = { createConversation, getConversations, getConversation, addMessage }
+module.exports = { createConversation, getConversations, addMessage }

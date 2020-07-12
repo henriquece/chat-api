@@ -9,7 +9,7 @@ const getUsers = (req, res) => {
       const usersInfo = users.map(user => {
         const { _id, email, name } = user
 
-        return { id: _id, email, name }
+        return { _id, email, name }
       })
 
       res.json({ users: usersInfo })
