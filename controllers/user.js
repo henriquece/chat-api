@@ -1,7 +1,7 @@
 const User = require('../models/user')
 
 const getUsers = (req, res) => {
-  const { email } = req.params
+  const { params: { email } } = req
 
   User
     .find({ email })
