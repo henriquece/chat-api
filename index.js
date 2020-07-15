@@ -35,9 +35,9 @@ app.use((error, req, res, next) => {
 })
 
 mongoose
-  .connect('mongodb+srv://henrique:mongohenriquen@cluster0-un9ta.mongodb.net/chat-api?retryWrites=true')
+  .connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-un9ta.mongodb.net/${process.env.MONGO_DATABASE}?retryWrites=true`)
   .then(() => {
-    const server = app.listen(3000)
+    const server = app.listen(process.env.PORT || 3000)
 
     const socket = io.init(server)
 
