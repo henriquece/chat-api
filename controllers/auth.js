@@ -18,7 +18,7 @@ const signup = (req, res, next) => {
       if (!user) {
         return bcryptjs.hash(password, 12)
       } else {
-        const error = new Error('Email address already exists')
+        const error = new Error('email address already exists')
         error.status = 401
 
         throw error
@@ -63,7 +63,7 @@ const signin = (req, res, next) => {
 
         return bcryptjs.compare(password, user.password)
       }
-      const error = new Error('This email could not be found')
+      const error = new Error('email incorrect')
       error.status = 401
 
       throw error
@@ -76,7 +76,7 @@ const signin = (req, res, next) => {
 
         res.status(200).json({ userId: _id.toString(), userName: name, token: token })
       } else {
-        const error = new Error('Wrong password')
+        const error = new Error('password incorrect')
         error.status = 401
 
         throw error

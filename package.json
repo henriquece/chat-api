@@ -7,8 +7,8 @@
     "node": "14.5.0"
   },
   "scripts": {
-    "start": "node index.js",
-    "start:dev": "nodemon index.js"
+    "start:dev": "nodemon index.js",
+    "start:prod": "node index.js"
   },
   "author": "",
   "license": "ISC",
