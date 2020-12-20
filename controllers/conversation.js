@@ -104,7 +104,7 @@ const addMessage = (req, res) => {
 
       io.getIO().emit('message', { action: 'create', conversation: responseConversation })
 
-      res.status(200).json({ message: 'Message added' })
+      res.status(200).json({ message: 'Message added', conversation: responseConversation })
     })
     .catch(error => {
       next(error)
