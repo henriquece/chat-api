@@ -6,6 +6,7 @@ const userRoutes = require('./routes/user')
 const conversationRoutes = require('./routes/conversation')
 const isAuth = require('./middlewares/isAuth')
 const io = require('./utils/socket')
+const { updateSocketConnectionId } = require('./controllers/user')
 
 const app = express()
 
@@ -42,6 +43,10 @@ mongoose
     const socket = io.init(server)
 
     socket.on('connection', socket => {
+      const { handshake: { query: { userId } }, id } = socket
+
+      updateSocketConnectionId(userId, id)
+
       console.log('Connection established')
     })
   })
