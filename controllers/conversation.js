@@ -2,7 +2,7 @@ const Conversation = require('../models/conversation')
 const User = require('../models/user')
 const io = require('../utils/socket')
 
-const createConversation = (req, res) => {
+const createConversation = (req, res, next) => {
   const { userId, body: { contactId } } = req
 
   let userData
@@ -38,10 +38,14 @@ const createConversation = (req, res) => {
       return contactData.save()
     })
     .then(() => {
+      const users = conversationCreated.users.map(user => ({
+        _id: user._id,
+        name: user.name
+      }))
+
       res.status(200).json({
         _id: conversationCreated._id,
-        contactId: contactData._id,
-        contactName: contactData.name,
+        users: users,
         messages: []
       })
     })
@@ -50,7 +54,7 @@ const createConversation = (req, res) => {
     })
 }
 
-const getConversations = (req, res) => {
+const getConversations = (req, res, next) => {
   const { userId } = req
 
   User
@@ -62,12 +66,14 @@ const getConversations = (req, res) => {
       }
 
       const conversations = user.conversations.map(conversation => {
-        const contact = conversation.users.find(user => user._id.toString() !== userId)
+        const users = conversation.users.map(user => ({
+          _id: user._id,
+          name: user.name
+        }))
 
         return {
           _id: conversation._id,
-          contactId: contact._id,
-          contactName: contact.name,
+          users: users,
           messages: conversation.messages
         }
       })
@@ -78,7 +84,7 @@ const getConversations = (req, res) => {
     })
 }
 
-const addMessage = (req, res) => {
+const addMessage = (req, res, next) => {
   const { userId, params: { conversationId }, body: { date, content } } = req
 
   const newMessage = { userId, date, content }
@@ -89,22 +95,30 @@ const addMessage = (req, res) => {
     .exec()
     .then((conversation) => {
       conversation.messages.push(newMessage)
-      
+
       return conversation.save()
     })
     .then((conversation) => {
-      const contact = conversation.users.find(user => user._id.toString() !== userId)
+      const users = conversation.users.map(user => ({
+        _id: user._id,
+        name: user.name
+      }))
 
       const responseConversation = {
         _id: conversation._id,
-        contactId: contact._id,
-        contactName: contact.name,
+        users: users,
         messages: conversation.messages
       }
 
-      io.getIO().emit('message', { action: 'create', conversation: responseConversation })
+      const conversationUsersSocketConnectionIds = conversation.users.map(user => user.socketConnectionId)
 
-      res.status(200).json({ message: 'Message added', conversation: responseConversation })
+      conversationUsersSocketConnectionIds.forEach(socketConnectionId => {
+        if (socketConnectionId) {
+          io.getIO().to(socketConnectionId).emit('message', { action: 'create', conversation: responseConversation })
+        }
+      })
+
+      res.status(200).json({ message: 'Message added' })
     })
     .catch(error => {
       next(error)

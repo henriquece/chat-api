@@ -1,6 +1,6 @@
 const User = require('../models/user')
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   const { params: { email } } = req
 
   User
@@ -19,4 +19,16 @@ const getUsers = (req, res) => {
     })
 }
 
-module.exports = { getUsers }
+const updateSocketConnectionId = (userId, socketConnectionId) => {
+  User
+    .findById(userId)
+    .then((user) => {
+      user.socketConnectionId = socketConnectionId
+
+      user.save()
+    })
+    .catch(error => {
+    })
+}
+
+module.exports = { getUsers, updateSocketConnectionId }

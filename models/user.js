@@ -15,6 +15,10 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
+  socketConnectionId: {
+    type: String,
+    required: false
+  },
   conversations: [
     {
       type: Schema.Types.ObjectId,
