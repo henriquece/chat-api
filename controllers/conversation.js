@@ -78,9 +78,7 @@ const getConversations = (req, res, next) => {
         }
       })
 
-      res.status(200).json({
-        conversations,
-      })
+      res.status(200).json(conversations)
     })
 }
 
