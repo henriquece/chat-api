@@ -12,7 +12,7 @@ const getUsers = (req, res, next) => {
         return { _id, email, name }
       })
 
-      res.json({ users: usersInfo })
+      res.json(usersInfo)
     })
     .catch(error => {
       next(error)
