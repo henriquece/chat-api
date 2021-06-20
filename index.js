@@ -40,12 +40,16 @@ mongoose
   .then(() => {
     const server = app.listen(process.env.PORT || 3000)
 
-    const socket = io.init(server)
-
-    socket.on('connection', socket => {
+    io.init(server).on('connection', socket => {
       const { handshake: { query: { userId } }, id } = socket
 
       updateSocketConnectionId(userId, id)
+      
+      socket.on('disconnect', () => {
+        console.log('Connection disconnected')
+
+        updateSocketConnectionId(userId, null)
+      })
 
       console.log('Connection established')
     })
