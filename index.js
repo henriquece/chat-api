@@ -35,8 +35,13 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message })
 })
 
+const mongodbUri = process.env.npm_lifecycle_event === 'dev' ?
+  `mongodb://${process.env.HOST}/${process.env.MONGO_DATABASE}`
+  :
+  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.HOST}/${process.env.MONGO_DATABASE}?retryWrites=true`
+
 mongoose
-  .connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-un9ta.mongodb.net/${process.env.MONGO_DATABASE}?retryWrites=true`)
+  .connect(mongodbUri)
   .then(() => {
     const server = app.listen(process.env.PORT || 3000)
 
