@@ -6,4 +6,3 @@ A Node.js/Express chat api that serves and communicates with the ReactJS fronten
 * **Database/ODM:** MongoDB/Mongoose
 * **Authentication:** JWT
 * **WebSocket:** Socket&#46;IO
-* **Deploy:** AWS
